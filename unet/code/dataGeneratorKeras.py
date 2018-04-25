@@ -65,7 +65,11 @@ class DataGenerator(object):
             # Store class
             y_name = ID + "-seg.npy"
             y_tmp_path = os.path.join(image_dir, y_name)
+            # for liver
+            #seg = np.load(y_tmp_path)
+            # for brain
             seg = np.load(y_tmp_path)
+            seg[seg != 0] = 1
             # seg_shape = seg.shape
             # seg_1d = seg.flatten()
             # for idx, val in enumerate(seg_1d):

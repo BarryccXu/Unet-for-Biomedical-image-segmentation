@@ -7,29 +7,14 @@ from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 from dataGeneratorKeras import DataGenerator
+import nibabel as nib
 '''
 Ref: https://github.com/zhixuhao/unet/blob/master/unet.py
 '''
-smooth = 1.
-# weights = [8.25089589e-06, 2.14682776e-02, 7.23189859e-03, 1.51260981e-02,
-#    5.08206869e-02, 8.75058185e-03, 7.61365681e-03, 5.12948139e-03,
-#    3.40352918e-02, 5.92399647e-03, 8.69393476e-03, 9.70766053e-03,
-#    1.36333745e-02, 3.80576732e-03, 3.40635955e-02, 1.25783736e-02,
-#    1.69017840e-02, 1.81727922e-02, 1.06269227e-02, 3.35887443e-02,
-#    7.62286659e-03, 2.00840763e-02, 5.46262234e-03, 7.18559313e-03,
-#    1.95287121e-02, 7.91296699e-03, 3.43449240e-03, 6.11593484e-03,
-#    5.07608571e-03, 6.85777225e-03, 3.62972739e-02, 1.12903731e-02,
-#    3.08793619e-02, 1.19351613e-02, 1.36379136e-02, 4.31627752e-02,
-#    9.79236759e-03, 7.81334738e-03, 5.94765117e-03, 4.30267580e-02,
-#    5.05728423e-03, 8.44392365e-03, 9.66414383e-03, 2.10978489e-02,
-#    5.07514231e-03, 4.72723296e-02, 1.64009904e-02, 1.10363663e-02,
-#    4.77406452e-02, 1.50676747e-02, 2.86143721e-02, 7.35394500e-03,
-#    2.14065710e-02, 4.80853127e-03, 7.69012928e-03, 2.38425341e-02,
-#    6.13471224e-03, 2.57943789e-03, 6.09137834e-03, 4.86854147e-03,
-#    4.74008837e-03, 6.27762048e-02, 1.12919293e-02]
-#label_num = len(weights)
+weights = [0.1, 0.9]
 
 def dice_coef(y_true, y_pred):
+    smooth = 1.
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
     intersection = K.sum(y_true_f * y_pred_f)
@@ -38,14 +23,14 @@ def dice_coef(y_true, y_pred):
     # define the weighted dice coef function
 
 
-def dice_coef_weight(y_true, y_pred):
+def dice_coef_weight(y_true, y_pred, weights=weights):
     sum_loss = 0
-    for i in range(0, label_num):
+    for i in range(0, len(weights)):
         sum_loss += weights[i] * dice_coef(y_true[..., i], y_pred[..., i])
     return sum_loss
 
 
-def dice_coef_loss_weight(y_true, y_pred):
+def dice_coef_loss_weight(y_true, y_pred, weights=weights):
     return -dice_coef_weight(y_true, y_pred)
 
 
@@ -54,14 +39,15 @@ def dice_coef_loss(y_true, y_pred):
 
 class myUnet(object):
 
-    def __init__(self, img_rows=256, img_cols=256, batch_size = 10, epoch = 2, label_num = 80):
+    def __init__(self, model=None, img_rows=256, img_cols=256, batch_size = 96, epoch = 2, label_num = 80):
+        self.model = model
         self.img_rows = img_rows
         self.img_cols = img_cols
         self.batch_size = batch_size
         self.epoch = epoch
         self.label_num = label_num
 
-    def generate_data_list(self):
+    def generate_data_list_brain(self):
         data_set = "OASIS-TRT-20"
         data_path = "../image/prepared/train/"
         num_img = 20
@@ -135,13 +121,15 @@ class myUnet(object):
 
         model = Model(inputs=[inputs], outputs=[conv10])
 
-        #model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss_weight, metrics=[dice_coef])
-        model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss_weight, metrics=[dice_coef])
+        #model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
+        self.model = model
         return model
 
     def train(self):
         print "generating data list"
-        train_list, val_list = self.generate_data_list_liver()
+        #train_list, val_list = self.generate_data_list_liver()
+        train_list, val_list = self.generate_data_list_brain()
         print "Train data shape: ", len(train_list)
         print "Validation data shape: ", len(val_list)
 
@@ -156,7 +144,8 @@ class myUnet(object):
                   'shuffle': True}
         training_generator = DataGenerator(**params).generate(train_list)
         validation_generator = DataGenerator(**params).generate(val_list)
-        model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', verbose=1, save_best_only=True)
+        #model_checkpoint = ModelCheckpoint('unet.h5', monitor='loss', verbose=1, save_best_only=True)
+        model_checkpoint = ModelCheckpoint('unet_brain.h5', monitor='loss', verbose=1, save_best_only=True)
         print 'Fitting model...'
         history_ft = model.fit_generator(
             generator=training_generator,
@@ -164,8 +153,9 @@ class myUnet(object):
             epochs=self.epoch,
             validation_data=validation_generator,
             validation_steps=len(val_list) // self.batch_size,
-            class_weight='auto')
-        model.save("model_liver-epoch_2.kerasmodel")
+            class_weight='auto',
+            callbacks=[model_checkpoint])
+        #model.save("model_liver-epoch_2.kerasmodel")
         # print('predict test data')
         # imgs_mask_test = model.predict(imgs_test, batch_size=1, verbose=1)
         # np.save('../results/imgs_mask_test.npy', imgs_mask_test)
@@ -177,8 +167,80 @@ class myUnet(object):
     #         img = imgs[i]
     #         img = array_to_img(img)
     #         img.save("../results/%d.jpg" % (i))
+def predict_brain(model, weights):
+    model.load_weights(weights)
+    imgs = np.ndarray((160,256,256), dtype="float")
+    segs = np.ndarray((160,256,256), dtype = int)
+    for i in range(0, 160):
+        img_name = "OASIS-TRT-20-20-" + str(i).zfill(3) + "-img.npy"
+        seg_name = "OASIS-TRT-20-20-" + str(i).zfill(3) + "-seg.npy"
+        img_path = os.path.join("../image/prepared/test", img_name)
+        seg_path = os.path.join("../image/prepared/test", seg_name)
+        imgs[i,:,:] = np.load(img_path)
+        segs[i,:,:] = np.load(seg_path)
+    preds = model.predict(imgs[..., np.newaxis])
+    img_pred = np.argmax(preds, axis=3)
+    # for 0-1 segmentation
+    np.save("pred_brain-20.npy", preds)
+    segs[segs != 0] = 1
+    dic = dice_coef_2class(img_preds, segs)
+    # seg_shape = img_pred.shape
+    # seg_1d = img_pred.flatten()
+    # for i, val in enumerate(seg_1d):
+    #     if 0 < val <= 35:
+    #         seg_1d[i] = val + 1000
+    #     elif val > 35:
+    #         seg_1d[i] = val + 2000 - 35
+    # seg = seg_1d.reshape(seg_shape)
+    # np.save("results", seg)
+    return dic
+
+def predict_liver(model, weights):
+    #model = load_model(model, custom_objects={'loss': dice_coef_loss_weight, 'metrics': dice_coef})
+    model.load_weights(weights)
+    imgs = np.ndarray((128, 128, 128), dtype="float")
+    segs = np.ndarray((128, 128, 128), dtype=int)
+    for i in range(0, 128):
+        img_name = "liver-020-" + str(i).zfill(3) + "-img.npy"
+        seg_name = "liver-020-" + str(i).zfill(3) + "-seg.npy"
+        img_path = os.path.join("../image/prepared_liver/test", img_name)
+        seg_path = os.path.join("../image/prepared_liver/test", seg_name)
+        imgs[i,:,:] = np.load(img_path)
+        segs[i,:,:] = np.load(seg_path)
+    preds = model.predict(imgs[..., np.newaxis])
+    img_preds = np.argmax(preds, axis=3)
+    #save 3d image
+    #pair_img = nib.Nifti1Pair(img_preds, np.eye(4))
+    #nib.save(pair_img, "pred_liver-20.img")
+    np.save('pred_liver-20.npy', img_preds)
+    #compute dice coefficient
+    dic = dice_coef_2class(img_preds, segs)
+    return dic
+
+def dice_coef_2class(pred, ground):
+    n_p = 0
+    n_g = 0
+    n_pg = 0
+    #print pred[64,]
+    #print ground[64,]
+    pred = pred.flatten()
+    ground = ground.flatten()
+    for i in range(0, len(pred)):
+        if ground[i] == 1 and pred[i] == 1:
+            n_pg += 1
+        n_p += pred[i]
+        n_g += ground[i]
+    return 2*float(n_pg) / float(n_p + n_g)
 
 if __name__ == '__main__':
-    myunet = myUnet(img_cols=128, img_rows=128, label_num=2)
+    #myunet = myUnet(img_cols=128, img_rows=128, label_num=2, epoch=10) #for liver
+    myunet = myUnet(img_cols=256, img_rows=256, label_num=2, epoch=10, batch_size=48)
+    print '-'*30
+    print 'Start training U-net...'
     myunet.train()
-    #myunet.save_img()
+    #prediction
+    print '-'*30
+    print 'Start doing prediction on test data...'
+    dic = predict_brain(myunet.model, 'unet_brain.h5')
+    print 'Dice of Test data:'
+    print dic

@@ -68,20 +68,17 @@ def prepare_data_liver(data_dir):
             np.save(img_save_path, img[:, :, j])
             np.save(seg_save_path, seg[:, :, j])
 
-
-
-
-if __name__ == "__main__":
+ if __name__ == '__main__':
     # brain
-    # data_set = "OASIS-TRT-20"
-    # num_img = 20
-    # label_count = dict()
-    # for i in range(1, num_img):
-    #     print i
-    #     file_train = data_set + "-" + str(i)
-    #     label_count = prepare_data(file_train, "train", label_count)
-    # np.save('label_count_1-19',label_count)
-    #
-    # file_test = data_set + "-" + str(num_img)
-    # prepare_data(file_test, "test")
-    prepare_data_liver("../image/liver_2007/")
+    data_set = "OASIS-TRT-20"
+    num_img = 20
+    label_count = dict()
+    for i in range(1, num_img):
+        print i
+        file_train = data_set + "-" + str(i)
+        label_count = prepare_data(file_train, "train", label_count)
+    np.save('label_count_1-19',label_count)
+
+    file_test = data_set + "-" + str(num_img)
+    prepare_data(file_test, "test")
+    #prepare_data_liver("../image/liver_2007/")
