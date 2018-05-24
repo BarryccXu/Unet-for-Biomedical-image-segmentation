@@ -1,0 +1,114 @@
+nohup: ignoring input
+/usr/local/lib/python2.7/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+2018-05-09 01:10:24.121999: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+2018-05-09 01:10:28.381167: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: e73b:00:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-05-09 01:10:28.381212: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1120] Creating TensorFlow device (/device:GPU:0) -> (device: 0, name: Tesla K80, pci bus id: e73b:00:00.0, compute capability: 3.7)
+2018-05-09 01:10:34.332883: W tensorflow/core/framework/op_kernel.cc:1192] Invalid argument: Incompatible shapes: [68] vs. [32]
+	 [[Node: training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs = BroadcastGradientArgs[T=DT_INT32, _class=["loc:@loss/conv2d_19_loss/mul_9"], _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape, training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape_1)]]
+2018-05-09 01:10:34.333044: W tensorflow/core/framework/op_kernel.cc:1192] Invalid argument: Incompatible shapes: [68] vs. [32]
+	 [[Node: training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs = BroadcastGradientArgs[T=DT_INT32, _class=["loc:@loss/conv2d_19_loss/mul_9"], _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape, training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape_1)]]
+2018-05-09 01:10:34.333553: W tensorflow/core/framework/op_kernel.cc:1192] Invalid argument: Incompatible shapes: [68] vs. [32]
+	 [[Node: training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs = BroadcastGradientArgs[T=DT_INT32, _class=["loc:@loss/conv2d_19_loss/mul_9"], _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape, training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape_1)]]
+------------------------------------------------------------
+Start training U-net...
+generating data list
+Train data shape:  2880
+Validation data shape:  160
+loading data done
+got unet
+Fitting model...
+Epoch 1/30
+Traceback (most recent call last):
+  File "uNet.py", line 247, in <module>
+    myunet.train()
+  File "uNet.py", line 161, in train
+    callbacks=[model_checkpoint])
+  File "/usr/local/lib/python2.7/dist-packages/keras/legacy/interfaces.py", line 91, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 2224, in fit_generator
+    class_weight=class_weight)
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 1883, in train_on_batch
+    outputs = self.train_function(ins)
+  File "/usr/local/lib/python2.7/dist-packages/keras/backend/tensorflow_backend.py", line 2478, in __call__
+    **self.session_kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 889, in run
+    run_metadata_ptr)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 1120, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 1317, in _do_run
+    options, run_metadata)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 1336, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.InvalidArgumentError: Incompatible shapes: [68] vs. [32]
+	 [[Node: training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs = BroadcastGradientArgs[T=DT_INT32, _class=["loc:@loss/conv2d_19_loss/mul_9"], _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape, training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape_1)]]
+	 [[Node: loss/mul/_339 = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device_incarnation=1, tensor_name="edge_2528_loss/mul", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+
+Caused by op u'training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs', defined at:
+  File "uNet.py", line 247, in <module>
+    myunet.train()
+  File "uNet.py", line 161, in train
+    callbacks=[model_checkpoint])
+  File "/usr/local/lib/python2.7/dist-packages/keras/legacy/interfaces.py", line 91, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 2080, in fit_generator
+    self._make_train_function()
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 990, in _make_train_function
+    loss=self.total_loss)
+  File "/usr/local/lib/python2.7/dist-packages/keras/legacy/interfaces.py", line 91, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/keras/optimizers.py", line 445, in get_updates
+    grads = self.get_gradients(loss, params)
+  File "/usr/local/lib/python2.7/dist-packages/keras/optimizers.py", line 78, in get_gradients
+    grads = K.gradients(loss, params)
+  File "/usr/local/lib/python2.7/dist-packages/keras/backend/tensorflow_backend.py", line 2515, in gradients
+    return tf.gradients(loss, variables, colocate_gradients_with_ops=True)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gradients_impl.py", line 581, in gradients
+    grad_scope, op, func_call, lambda: grad_fn(op, *out_grads))
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gradients_impl.py", line 353, in _MaybeCompile
+    return grad_fn()  # Exit early
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gradients_impl.py", line 581, in <lambda>
+    grad_scope, op, func_call, lambda: grad_fn(op, *out_grads))
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_grad.py", line 742, in _MulGrad
+    rx, ry = gen_array_ops._broadcast_gradient_args(sx, sy)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gen_array_ops.py", line 532, in _broadcast_gradient_args
+    "BroadcastGradientArgs", s0=s0, s1=s1, name=name)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 2956, in create_op
+    op_def=op_def)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 1470, in __init__
+    self._traceback = self._graph._extract_stack()  # pylint: disable=protected-access
+
+...which was originally created as op u'loss/conv2d_19_loss/mul_9', defined at:
+  File "uNet.py", line 247, in <module>
+    myunet.train()
+  File "uNet.py", line 141, in train
+    model = self.get_unet()
+  File "uNet.py", line 129, in get_unet
+    model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss_weight, metrics=[dice_coef_weight])
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 830, in compile
+    sample_weight, mask)
+  File "/usr/local/lib/python2.7/dist-packages/keras/engine/training.py", line 445, in weighted
+    score_array *= weights
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_ops.py", line 894, in binary_op_wrapper
+    return func(x, y, name=name)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_ops.py", line 1117, in _mul_dispatch
+    return gen_math_ops._mul(x, y, name=name)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gen_math_ops.py", line 2726, in _mul
+    "Mul", x=x, y=y, name=name)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 2956, in create_op
+    op_def=op_def)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 1470, in __init__
+    self._traceback = self._graph._extract_stack()  # pylint: disable=protected-access
+
+InvalidArgumentError (see above for traceback): Incompatible shapes: [68] vs. [32]
+	 [[Node: training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/BroadcastGradientArgs = BroadcastGradientArgs[T=DT_INT32, _class=["loc:@loss/conv2d_19_loss/mul_9"], _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape, training/Adam/gradients/loss/conv2d_19_loss/mul_9_grad/Shape_1)]]
+	 [[Node: loss/mul/_339 = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device_incarnation=1, tensor_name="edge_2528_loss/mul", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+

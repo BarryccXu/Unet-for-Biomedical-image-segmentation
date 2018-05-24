@@ -1,0 +1,31 @@
+nohup: ignoring input
+/usr/local/lib/python2.7/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+2018-05-16 21:13:38.651836: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+2018-05-16 21:13:43.439789: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 3b8d:00:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-05-16 21:13:43.439837: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1120] Creating TensorFlow device (/device:GPU:0) -> (device: 0, name: Tesla K80, pci bus id: 3b8d:00:00.0, compute capability: 3.7)
+------------------------------------------------------------
+Start training U-net...
+generating data list
+Train data shape:  1701
+Validation data shape:  95
+loading data done
+got unet
+Fitting model...
+Epoch 1/30
+
+  1/212 [..............................] - ETA: 2:09:09 - loss: 0.9956 - dice_coef_weight: 0.0044
+  2/212 [..............................] - ETA: 1:05:16 - loss: 0.9929 - dice_coef_weight: 0.0071
+  3/212 [..............................] - ETA: 43:59 - loss: 0.9916 - dice_coef_weight: 0.0084  
+  4/212 [..............................] - ETA: 33:19 - loss: 0.9926 - dice_coef_weight: 0.0074
+  5/212 [..............................] - ETA: 26:55 - loss: 0.9924 - dice_coef_weight: 0.0076
+  6/212 [..............................] - ETA: 22:38 - loss: 0.9920 - dice_coef_weight: 0.0080
+  7/212 [..............................] - ETA: 19:35 - loss: 0.9917 - dice_coef_weight: 0.0083
+  8/212 [>.............................] - ETA: 17:18 - loss: 0.9915 - dice_coef_weight: 0.0085
+  9/212 [>.............................] - ETA: 15:31 - loss: 0.9917 - dice_coef_weight: 0.0083
+ 10/212 [>.............................] - ETA: 14:05 - loss: 0.9912 - dice_coef_weight: 0.0088
+ 11/212 [>.............................] - ETA: 12:55 - loss: 0.9908 - dice_coef_weight: 0.0092

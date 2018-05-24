@@ -1,2 +1,9 @@
 unet/image/
 code/*.kerasmodel
+code/*.npy
+code/*.pyc
+code/*.img
+code/*.hdr
+code/*.jpg
+code/*.nii.gz
+code/logs/

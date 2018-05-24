@@ -15,11 +15,11 @@ from utils import *
 class DataGenerator(object):
     'Generates data for Keras'
 
-    def __init__(self, dim_x=256, dim_y=256, dim_channel=1, dim_label=100, batch_size=10, shuffle=True):
+    def __init__(self, dim_x=64, dim_y=64, dim_z=64, dim_label=100, batch_size=10, shuffle=True):
         'Initialization'
         self.dim_x = dim_x
         self.dim_y = dim_y
-        self.dim_channel = dim_channel
+        self.dim_z = dim_z
         self.dim_label = dim_label
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -54,29 +54,20 @@ class DataGenerator(object):
         'Generates data of batch_size samples'
         # X : (n_samples, v_size, v_size, v_size, n_channels)
         # Initialization
-        X = np.empty((self.batch_size, self.dim_x, self.dim_y), dtype="float")
-        y = np.empty((self.batch_size, self.dim_x, self.dim_y), dtype=int)
+        X = np.empty((self.batch_size, self.dim_x, self.dim_y, self.dim_z), dtype="float")
+        y = np.empty((self.batch_size, self.dim_x, self.dim_y, self.dim_z), dtype=int)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store volume
             X_name = ID + "-img.npy"
             X_tmp_path = os.path.join(image_dir, X_name)
-            img = np.load(X_tmp_path)
-            img = cv2.resize(img, (256,256), interpolation=cv2.INTER_LINEAR)
             # Store class
             y_name = ID + "-seg.npy"
             y_tmp_path = os.path.join(image_dir, y_name)
-            # for liver
-            #seg = np.load(y_tmp_path)
-            # for brain
 
-            seg = np.load(y_tmp_path)
-            seg = cv2.resize(seg, (self.dim_x, self.dim_y), interpolation=cv2.INTER_NEAREST)
-            y[i, ...] = label_map_dkt31_6(seg)
-            X[i, ...] = norm_gray_matter(img, y[i,...])
-            #y[i, ...] = label_map_3(seg, img)
-            #X[i, ...] = norm_gray_white_matter(img, y[i, ...])
+            X[i, ...] = np.load(X_tmp_path)
+            y[i, ...] = np.load(y_tmp_path)
 
         return X[...,np.newaxis], to_categorical(y, num_classes=self.dim_label)
 
