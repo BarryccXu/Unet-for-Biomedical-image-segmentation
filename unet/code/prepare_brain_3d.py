@@ -54,6 +54,66 @@ def load_brain_3d(file_name, data_dir):
     seg = seg.get_data()  # dtype = '<f4'
     return img, seg
 
+def get_label_ditrib_3d(file_name, label_type):
+    data_dir = "../image/OASIS-TRT-20_volumes/"
+    img, seg = load_brain_3d(file_name, data_dir)
+    # get ROI by removing border
+    img, seg = remove_border(img, seg)
+    # rescale the image to 256x256x256 with nearest interpolation
+    img = resize_to_256(img)
+    seg = resize_to_256(seg)
+    # relabel
+    if label_type == "stage_1":
+        seg = label_map_3(seg, img)
+    elif label_type == "stage_2":
+        seg = label_map_dkt31_6(seg)
+    else:
+        raise ValueError("Wrong label_type value!")
+    u, c = np.unique(seg, return_counts=True)
+    return u, c
+
+def get_label_ditrib_3d_all():
+    '''
+    :param label_type: "stage_1" or "stage_2"
+    :return:
+    '''
+    '''
+    results on 1-19
+    d1 = [0.21246825080168874, 0.13757515581030594, 0.6499565933880053]
+    d2 = [0.8624252394626015, 0.0036507437103673033, 0.003346142015959087, 0.01284337043762207, 0.012378520087191933, 0.025204373033423173, 0.025502148427461322, 0.016202484306536223, 0.016304282765639454, 0.00725322961807251, 0.007807687709206029, 0.003828898856514379, 0.003252879569405004]
+    '''
+    # brain
+    data_set = "OASIS-TRT-20"
+    num_img = 20
+    s1 = [0.0]*3
+    s2 = [0.0]*13
+    for i in range(1, num_img):
+        print "Processing image No.", str(i), "of ", data_set, "........."
+        file_train = data_set + "-" + str(i)
+        _, c1 = get_label_ditrib_3d(file_train, "stage_1")
+        s1 = [(x + y) for x, y in zip(s1, c1)]
+        _, c2 = get_label_ditrib_3d(file_train, "stage_2")
+        s2 = [(x + y) for x, y in zip(s2, c2)]
+    sum1 = float(sum(s1))
+    distrib1 = map(lambda x : x/ sum1, s1)
+    sum2 = float(sum(s2))
+    distrib2 = map(lambda x : x / sum2, s2)
+    return distrib1, distrib2
+
+def distrib_to_weights(d):
+    '''
+    results on 1-19
+    w1 = [0.3483, 0.5379, 0.1139]
+    w2 = [0.0007, 0.1548, 0.1689, 0.044, 0.0457, 0.0224, 0.0222, 0.0349, 0.0347, 0.0779, 0.0724, 0.1476, 0.1738]
+
+    '''
+    div = map(lambda x : 1/x, d)
+    s = sum(div)
+    w = map(lambda x : round(x/s, 4), div)
+    return w
+
+
+
 def prepare_brain_3d(file_name, dataset_type, label_type):
     data_dir = "../image/OASIS-TRT-20_volumes/"
     save_dir = "../image/prepared_3d/" + label_type
