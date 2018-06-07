@@ -68,7 +68,14 @@ class DataGenerator(object):
 
             X[i, ...] = np.load(X_tmp_path)
             y[i, ...] = np.load(y_tmp_path)
-
+            '''
+            # for half brain
+            for ii in range(0, self.dim_x):
+                for j in range(0, self.dim_y):
+                    for k in range(0, self.dim_z):
+                        if y[i, ...][ii,j,k] in {3,5,7,9,11,13}:
+                            y[i, ...][ii,j,k] -= 1
+            '''
         return X[...,np.newaxis], to_categorical(y, num_classes=self.dim_label)
 
 

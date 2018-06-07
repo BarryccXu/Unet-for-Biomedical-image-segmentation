@@ -134,6 +134,21 @@ def get_list_patch_img_3d(prepared_data_name, label_type, img_num, num_patch = 6
             patches.append(file_name)
     return patches
 
+def dice_dkt_6(pre, ground, num_label):
+    #14 labels
+    smooth = 1.
+    pre_f = pre.flatten()
+    ground_f = ground.flatten()
+    n_p = [0.] * num_label
+    n_g = [0.] * num_label
+    n_pg = [0.] * num_label
+    for i in range(0, len(pre_f)):
+        n_p[int(pre_f[i])] += 1
+        n_g[int(ground_f[i])] += 1
+        if pre_f[i] == ground_f[i]:
+            n_pg[int(pre_f[i])] += 1
+    return [2*pg / (p+g+smooth) for pg, p, g in zip(n_pg, n_p, n_g)]
+
 def dice_coef_2class(pred, ground):
     n_p = 0
     n_g = 0
