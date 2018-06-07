@@ -171,6 +171,22 @@ class myUnet_3d(object):
             class_weight='auto',
             callbacks=callbacks_list)
 
+def predict(model, weights, img_path, save_path):
+    model.load_weights(weights)
+    pre = os.path.join(img_path, "OASIS-TRT-20-20-")
+    imgs = np.ndarray((64,64,64,64), dtype="float")
+    segs = np.ndarray((64,64,64,64), dtype=int)
+    for i in range(0, 64):
+        img_path = pre + str(i).zfill(2) + "-img.npy"
+        seg_path = pre + str(i).zfill(2) + "-seg.npy"
+        imgs[i, ...] = np.load(img_path)
+        segs[i, ...] = np.load(seg_path)
+    preds = model.predict(imgs[..., np.newaxis])
+    img_preds = np.argmax(preds, axis=4)
+    np.save(save_path, img_preds)
+    dice = dice_dkt_6(img_preds, segs, 14)
+    return dice
+
 if __name__ == '__main__':
     config = {
         'save_name': 'stage_2',
@@ -184,12 +200,16 @@ if __name__ == '__main__':
     myunet = myUnet_3d(**config)
     print '-'*60
     print 'Start training U-net...'
-    myunet.train("prepared_3d")
+    #myunet.train("prepared_3d")
 
     #prediction
+    myunet.get_unet_3d()
     print '-'*60
     print 'Start doing prediction on test data...'
-
+    dice = predict(myunet.model, "unet_brain_3d_stage_2.h5",
+            "/home/caffe/keras_tensorflow/image/Unet-for-Biomedical-image-segmentation/unet/image/prepared_3d/stage_2/test",
+            "unet3d_pred_test.npy")
+    print "Dice: ", dice
 '''
 for parameters reminder
 dkt_6 label distribution of oasis-20-1
@@ -209,4 +229,9 @@ dkt_6 label distribution of oasis-20-1
  
  [0.0006, 0.1604, 0.1779, 0.0384, 0.0447, 0.0216, 0.021, 0.0369, 0.034, 0.0709, 0.064, 0.1486, 0.181]
 
+'''
+
+'''
+results dice 3d:
+Dice:  [0.0, 0.0, 0.73244619586083, 0.6686850886730906, 0.0, 0.5720077764060273, 0.5385949403817994, 0.5531708008350094, 0.0, 0.4184973387297049, 0.4509796815732889, 0.4865938559486529, 0.7183344506737194, 0.7167700732300568]
 '''

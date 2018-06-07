@@ -94,7 +94,7 @@ class myUnet(object):
                     val_list.append(file_name)
         return train_list, val_list
 
-    def get_unet_3d(self):
+    def get_unet(self):
         inputs = Input((self.img_rows, self.img_cols, 1))
 
         #    inp_norm = BatchNormalization()(inputs)
@@ -151,7 +151,7 @@ class myUnet(object):
         print "Validation data shape: ", len(val_list)
 
         print"loading data done"
-        model = self.get_unet_3d()
+        model = self.get_unet()
         print "got unet"
         params = {'dim_x': self.img_rows,
                   'dim_y': self.img_cols,
@@ -220,10 +220,9 @@ def predict_brain(model, weights, dataset_type, slide_type):
                 #imgs[:, i, :] = norm_gray_white_matter(img, segs[:, i, :])
     preds = model.predict(imgs[..., np.newaxis])
     img_preds = np.argmax(preds, axis=3)
-    #img_preds = cv2.resize(img_preds, (160, 256, 256))
-
+    dice = dice_dkt_6(img_preds, segs, 14)
     np.save(save_path, img_preds)
-    return  imgs, img_preds
+    return dice
 
 def predict_liver(model, weights):
     #model = load_model(model, custom_objects={'loss': dice_coef_loss_weight, 'metrics': dice_coef})
@@ -261,12 +260,16 @@ if __name__ == '__main__':
 
     print '-'*60
     print 'Start training U-net...'
-    myunet.train("prepared_2d_horizontal")
+    #myunet.train("prepared_2d_horizontal")
 
     #prediction
     myunet.get_unet()
     print '-'*60
     print 'Start doing prediction on test data...'
-    imgs, img_preds = predict_brain(myunet.model, "unet_brain_stage_2.h5", "test", 'horizontal')
-    print np.unique(imgs)
-    print np.unique(img_preds)
+    dice = predict_brain(myunet.model, "unet_brain_stage_2.h5", "test", 'horizontal')
+    print "Dice: ", dice
+
+    '''
+    results
+    Dice:  [0.9888322147137434, 0.0, 0.45207414942918506, 0.43235545428652805, 0.5822206354873259, 0.0, 0.0, 0.5154851783440633, 0.05502204669029134, 0.1904094541873414, 0.0, 0.1507121024907329, 0.4460803306212063, 0.5218681879319141]
+    '''
