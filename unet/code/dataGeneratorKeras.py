@@ -73,7 +73,8 @@ class DataGenerator(object):
 
             seg = np.load(y_tmp_path)
             seg = cv2.resize(seg, (self.dim_x, self.dim_y), interpolation=cv2.INTER_NEAREST)
-            y[i, ...] = label_map_dkt31_6(seg)
+            #y[i, ...] = label_map_dkt31_6(seg)
+            y[i, ...] = label_map_dkt31_5(seg)
             X[i, ...] = norm_gray_matter(img, y[i,...])
             #y[i, ...] = label_map_3(seg, img)
             #X[i, ...] = norm_gray_white_matter(img, y[i, ...])

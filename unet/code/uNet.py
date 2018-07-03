@@ -20,11 +20,18 @@ LABEL_NUM = 3
 weights = [0.3, 0.6, 0.1] #3 labels
 # DKT31 0: white matter, 1: background, 2~70: cortical labels,
 '''
+'''
 LABEL_NUM = 14
 #dkt31 =  [0.1603, 0.1787, 0.0384, 0.0446, 0.0215, 0.021, 0.0368, 0.034, 0.0712, 0.0639, 0.1479, 0.1814]
 dkt31 = [0.1328, 0.1328, 0.0443, 0.0443, 0.021, 0.021, 0.0362, 0.0362, 0.0664, 0.0664, 0.1992, 0.1992]
 weights = [0.0002, 0.0]
 weights.extend(dkt31)
+'''
+LABEL_NUM = 12
+dkt31 = [0.1] * 10
+weights = [0.0, 0.0]
+weights.extend(dkt31)
+
 
 
 def dice_coef(y_true, y_pred):
@@ -214,13 +221,14 @@ def predict_brain(model, weights, dataset_type, slide_type):
                 img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_NEAREST)
                 seg = np.load(seg_path)
                 seg = cv2.resize(seg, (256, 256), interpolation=cv2.INTER_NEAREST)
-                segs[:,i,:] = label_map_dkt31_6(seg)
+                #segs[:,i,:] = label_map_dkt31_6(seg)
+                segs[:,i,:] = label_map_dkt31_5(seg)
                 imgs[:,i,:] = norm_gray_matter(img, segs[:,i,:])
                 #segs[:, i, :] = label_map_3(seg, img)
                 #imgs[:, i, :] = norm_gray_white_matter(img, segs[:, i, :])
     preds = model.predict(imgs[..., np.newaxis])
     img_preds = np.argmax(preds, axis=3)
-    dice = dice_dkt_6(img_preds, segs, 14)
+    dice = dice_dkt_6(img_preds, segs, LABEL_NUM)
     np.save(save_path, img_preds)
     return dice
 
@@ -255,12 +263,12 @@ if __name__ == '__main__':
     #myunet = myUnet(img_cols=128, img_rows=128, label_num=2, epoch=10) #for liver
     #myunet = myUnet(img_cols=256, img_rows=256, label_num=3, epoch=30, batch_size=32)
     #myunet = myUnet(save_name = 'stage_1', img_cols=256, img_rows=256, label_num=LABEL_NUM, epoch=30, batch_size=32)
-    myunet = myUnet(save_name = 'stage_2', img_cols=256, img_rows=256, label_num=LABEL_NUM, epoch=30, batch_size=8)
+    myunet = myUnet(save_name = 'stage_2', img_cols=256, img_rows=256, label_num=LABEL_NUM, epoch=10, batch_size=8)
     #myunet = myUnet(img_cols=256, img_rows=256, label_num=36, epoch=5, batch_size=16)
 
     print '-'*60
     print 'Start training U-net...'
-    #myunet.train("prepared_2d_horizontal")
+    myunet.train("prepared_2d_horizontal")
 
     #prediction
     myunet.get_unet()

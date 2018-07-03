@@ -75,6 +75,47 @@ def label_map_dkt31_6(seg_2d):
     seg_2d = seg_1d.reshape(seg_shape)
     return seg_2d
 
+def label_map_dkt31_5(seg_2d):
+    # works for 3d input image
+    # 0: white matter & background
+    # 2,3: TEMPORAL_LOBE
+    TEMPORAL_LOBE = {6, 16, 7, 30, 15, 9, 34}
+    # 4,5: FRONTAL_LOBE
+    FRONTAL_LOBE = {28, 12, 14, 24, 17, 3, 18, 19, 20, 27}
+    # 6,7: PARIETAL_LOBE
+    PARIETAL_LOBE = {22, 31, 29, 8, 25}
+    # 8,9: OCCIPITAL_LOBE
+    OCCIPITAL_LOBE = {13, 21, 5, 11}
+    # 10,11: CINGULATE_CORTEX
+    CINGULATE_CORTEX = {10, 23, 26, 2}
+    # removed #35
+    label_cluster = [TEMPORAL_LOBE, FRONTAL_LOBE, PARIETAL_LOBE, OCCIPITAL_LOBE, CINGULATE_CORTEX]
+    def get_new_label(old_label, left_right):
+        for idx, lobe in enumerate(label_cluster):
+            if old_label in lobe:
+                if left_right == "left":
+                    return 2+2*idx
+                elif left_right == "right":
+                    return 3+2*idx
+                else:
+                    raise ValueError("Wrong left_right value!")
+        return 0
+
+    seg_shape = seg_2d.shape
+    seg_1d = seg_2d.flatten()
+    for idx, val in enumerate(seg_1d):
+        val = int(val)
+        if val == 0:
+            continue
+        elif 1002 <= val <= 1035:
+            seg_1d[idx] = get_new_label(val-1000, "left")
+        elif 2002 <= val <= 2035:
+            seg_1d[idx] = get_new_label(val-2000, "right")
+        else:
+            raise ValueError("Could not convert label number {} for brain segmentation".format(val))
+    seg_2d = seg_1d.reshape(seg_shape)
+    return seg_2d
+
 def label_map_3(seg_2d, img_2d):
     # works for 3d input image
     # 0 is white matter
